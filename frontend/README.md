@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RAG Document Search - 프론트엔드
 
-## Getting Started
+Next.js 15 기반의 RAG 문서 검색 프론트엔드입니다.
 
-First, run the development server:
+## 기술 스택
+
+- **Next.js 15** - React 프레임워크
+- **React 19** - UI 라이브러리
+- **TypeScript** - 타입 안전성
+- **Tailwind CSS** - 스타일링
+- **Axios** - HTTP 클라이언트
+- **Lucide React** - 아이콘
+
+## 프로젝트 구조
+
+```
+src/
+├── app/                # Next.js App Router
+│   ├── layout.tsx     # 루트 레이아웃
+│   └── page.tsx       # 메인 페이지
+├── components/        # React 컴포넌트
+│   ├── ChatInterface.tsx    # 채팅 UI
+│   ├── DocumentList.tsx     # 문서 목록
+│   └── DocumentUpload.tsx   # 파일 업로드
+├── lib/               # 유틸리티
+│   └── api.ts         # API 클라이언트
+└── types/             # TypeScript 타입
+    ├── document.ts    # 문서 관련 타입
+    ├── search.ts      # 검색 관련 타입
+    └── index.ts       # 타입 re-export
+```
+
+## 개발 서버 실행
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000)에서 확인할 수 있습니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 빌드
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+## 환경 변수
 
-To learn more about Next.js, take a look at the following resources:
+`.env.local` 파일을 생성하고 다음 변수를 설정합니다:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 주요 기능
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **문서 업로드** - 드래그 앤 드롭으로 PDF 업로드
+2. **문서 관리** - 업로드된 문서 목록 조회 및 삭제
+3. **문서 선택** - 검색 대상 문서 선택
+4. **RAG 채팅** - 문서 기반 AI 질의응답
