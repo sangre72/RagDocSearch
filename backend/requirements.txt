@@ -1,0 +1,29 @@
+# FastAPI and server
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# LangChain
+langchain==0.3.14
+langchain-community==0.3.14
+langchain-openai==0.3.0
+langchain-postgres==0.0.14
+
+# PostgreSQL
+psycopg[binary]==3.2.3
+sqlalchemy==2.0.36
+pgvector==0.3.6
+
+# PDF processing
+pypdf==5.1.0
+unstructured==0.16.12
+
+# OpenAI
+openai==1.58.1
+
+# Environment
+python-dotenv==1.0.1
+
+# Utilities
+pydantic==2.10.4
+pydantic-settings==2.7.0
