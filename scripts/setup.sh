@@ -13,12 +13,25 @@ echo "  - pgvector 확장 활성화 완료"
 # 2. Backend 설정
 echo "[2/4] Backend 설정..."
 cd "$(dirname "$0")/../backend"
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
-    echo "  - 가상환경 생성 완료"
+
+# uv 사용 가능 여부 확인
+if command -v uv &> /dev/null; then
+    echo "  - uv를 사용하여 설치합니다"
+    if [ ! -d ".venv" ]; then
+        uv venv
+        echo "  - 가상환경 생성 완료"
+    fi
+    source .venv/bin/activate
+    uv pip install -r requirements.txt -q
+else
+    echo "  - pip를 사용하여 설치합니다"
+    if [ ! -d ".venv" ]; then
+        python3 -m venv .venv
+        echo "  - 가상환경 생성 완료"
+    fi
+    source .venv/bin/activate
+    pip install -r requirements.txt -q
 fi
-source venv/bin/activate
-pip install -r requirements.txt -q
 echo "  - 의존성 설치 완료"
 
 if [ ! -f ".env" ]; then

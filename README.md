@@ -54,6 +54,7 @@ RagDocSearch/
 - Node.js 20+
 - PostgreSQL 17+ (pgvector 확장)
 - OpenAI API Key
+- [uv](https://github.com/astral-sh/uv) (권장) 또는 pip
 
 ### 1. 초기 설정
 
@@ -78,13 +79,15 @@ OPENAI_API_KEY=your-api-key-here
 또는 개별 실행:
 
 ```bash
-# Backend
+# Backend (uv 사용)
 cd backend
-source venv/bin/activate
+uv venv && source .venv/bin/activate
+uv pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 
 # Frontend (새 터미널)
 cd frontend
+npm install
 npm run dev
 ```
 

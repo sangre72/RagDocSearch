@@ -10,7 +10,7 @@ echo "=== RAG Document Search 시작 ==="
 # Backend 시작
 echo "[Backend] 시작 중... (http://localhost:8000)"
 cd "$PROJECT_DIR/backend"
-source venv/bin/activate
+source .venv/bin/activate
 uvicorn app.main:app --reload --port 8000 &
 BACKEND_PID=$!
 
