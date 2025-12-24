@@ -30,10 +30,30 @@ app/
 
 ## 설치
 
+### uv 사용 (권장)
+
+[uv](https://github.com/astral-sh/uv)는 빠른 Python 패키지 관리 도구입니다.
+
+```bash
+# uv 설치 (미설치 시)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 가상환경 생성
+uv venv
+
+# 가상환경 활성화
+source .venv/bin/activate
+
+# 의존성 설치
+uv pip install -r requirements.txt
+```
+
+### pip 사용 (대안)
+
 ```bash
 # 가상환경 생성
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 
 # 의존성 설치
 pip install -r requirements.txt
