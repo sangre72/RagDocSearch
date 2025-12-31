@@ -18,3 +18,17 @@ export type {
   ChatQuery,
   ChatResponse,
 } from './search';
+
+// Provider types
+export type {
+  ProviderInfo,
+  EmbeddingProviderInfo,
+  ProviderListResponse,
+  CurrentProviderResponse,
+  UpdateProviderRequest,
+  ProviderHealthResponse,
+  AvailableModel,
+  CachedModel,
+  DownloadStatus,
+  DownloadRequest,
+} from './provider';

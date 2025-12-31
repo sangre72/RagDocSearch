@@ -5,6 +5,14 @@ import type {
   UploadResponse,
   SearchResponse,
   ChatResponse,
+  ProviderListResponse,
+  CurrentProviderResponse,
+  UpdateProviderRequest,
+  ProviderHealthResponse,
+  AvailableModel,
+  CachedModel,
+  DownloadStatus,
+  DownloadRequest,
 } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
@@ -15,6 +23,8 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// === Document API ===
 
 export const documentApi = {
   upload: async (file: File): Promise<UploadResponse> => {
@@ -42,7 +52,18 @@ export const documentApi = {
   delete: async (id: number): Promise<void> => {
     await api.delete(`/documents/${id}`);
   },
+
+  reindex: async (id: number): Promise<void> => {
+    await api.post(`/documents/${id}/reindex`);
+  },
+
+  reindexAll: async (): Promise<{ reindexed_ids: number[] }> => {
+    const response = await api.post<{ reindexed_ids: number[] }>('/documents/reindex-all');
+    return response.data;
+  },
 };
+
+// === Search API ===
 
 export const searchApi = {
   search: async (
@@ -69,5 +90,81 @@ export const searchApi = {
       document_ids: documentIds,
     });
     return response.data;
+  },
+};
+
+// === Provider API ===
+
+export const providerApi = {
+  list: async (): Promise<ProviderListResponse> => {
+    const response = await api.get<ProviderListResponse>('/providers');
+    return response.data;
+  },
+
+  getCurrent: async (): Promise<CurrentProviderResponse> => {
+    const response = await api.get<CurrentProviderResponse>('/providers/current');
+    return response.data;
+  },
+
+  update: async (request: UpdateProviderRequest): Promise<void> => {
+    await api.post('/providers/update', request);
+  },
+
+  checkHealth: async (): Promise<ProviderHealthResponse> => {
+    const response = await api.get<ProviderHealthResponse>('/providers/health');
+    return response.data;
+  },
+
+  getLLMModels: async (providerName: string): Promise<string[]> => {
+    const response = await api.get<{ models: string[] }>(`/providers/llm/${providerName}/models`);
+    return response.data.models;
+  },
+
+  getEmbeddingModels: async (providerName: string): Promise<{ models: string[]; dimensions: Record<string, number> }> => {
+    const response = await api.get<{ models: string[]; dimensions: Record<string, number> }>(
+      `/providers/embedding/${providerName}/models`
+    );
+    return response.data;
+  },
+};
+
+// === Model Download API ===
+
+export const modelApi = {
+  getAvailableEmbedding: async (): Promise<AvailableModel[]> => {
+    const response = await api.get<{ models: AvailableModel[] }>('/models/available/embedding');
+    return response.data.models;
+  },
+
+  getAvailableLLM: async (): Promise<AvailableModel[]> => {
+    const response = await api.get<{ models: AvailableModel[] }>('/models/available/llm');
+    return response.data.models;
+  },
+
+  getCached: async (): Promise<CachedModel[]> => {
+    const response = await api.get<{ models: CachedModel[] }>('/models/cached');
+    return response.data.models;
+  },
+
+  startDownload: async (request: DownloadRequest): Promise<{ status: string; message: string }> => {
+    const response = await api.post<{ status: string; message: string }>('/models/download', request);
+    return response.data;
+  },
+
+  getDownloadStatus: async (modelName: string): Promise<DownloadStatus> => {
+    const encodedName = modelName.replace('/', '--');
+    const response = await api.get<DownloadStatus>(`/models/download/${encodedName}/status`);
+    return response.data;
+  },
+
+  deleteModel: async (modelName: string): Promise<void> => {
+    const encodedName = modelName.replace('/', '--');
+    await api.delete(`/models/${encodedName}`);
+  },
+
+  checkModel: async (modelName: string): Promise<boolean> => {
+    const encodedName = modelName.replace('/', '--');
+    const response = await api.get<{ is_cached: boolean }>(`/models/check/${encodedName}`);
+    return response.data.is_cached;
   },
 };

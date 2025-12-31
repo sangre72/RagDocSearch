@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
-from app.routers import documents, search
+from app.routers import documents, search, providers, models
 
 
 @asynccontextmanager
@@ -32,6 +32,8 @@ app.add_middleware(
 # Include routers
 app.include_router(documents.router, prefix="/api")
 app.include_router(search.router, prefix="/api")
+app.include_router(providers.router, prefix="/api")
+app.include_router(models.router, prefix="/api")
 
 
 @app.get("/")

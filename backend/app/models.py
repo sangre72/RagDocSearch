@@ -16,6 +16,11 @@ class Document(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+    # 임베딩 메타데이터
+    embedding_provider = Column(String(50), default="openai")
+    embedding_model = Column(String(100), default="text-embedding-3-small")
+    embedding_dimension = Column(Integer, default=1536)
+
 
 class DocumentChunk(Base):
     __tablename__ = "document_chunks"

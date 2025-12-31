@@ -1,20 +1,30 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
+
 from app.database import get_db
 from app.models import Document
 from app.schemas import DocumentResponse, DocumentListResponse, UploadResponse
 from app.services.pdf_service import PDFService
 from app.config import get_settings
+from app.dependencies import get_embedding_provider
+from app.providers.embedding.base import BaseEmbeddingProvider
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 settings = get_settings()
-pdf_service = PDFService()
+
+
+def get_pdf_service(
+    embedding_provider: BaseEmbeddingProvider = Depends(get_embedding_provider)
+) -> PDFService:
+    """PDFService 의존성"""
+    return PDFService(embedding_provider)
 
 
 @router.post("/upload", response_model=UploadResponse)
 async def upload_document(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    pdf_service: PDFService = Depends(get_pdf_service)
 ):
     # Validate file type
     if not file.filename.lower().endswith(".pdf"):
@@ -61,10 +71,55 @@ async def get_document(document_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{document_id}")
-async def delete_document(document_id: int, db: Session = Depends(get_db)):
+async def delete_document(
+    document_id: int,
+    db: Session = Depends(get_db),
+    pdf_service: PDFService = Depends(get_pdf_service)
+):
     document = db.query(Document).filter(Document.id == document_id).first()
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
     pdf_service.delete_document(document, db)
     return {"message": "Document deleted successfully"}
+
+
+@router.post("/{document_id}/reindex")
+async def reindex_document(
+    document_id: int,
+    db: Session = Depends(get_db),
+    pdf_service: PDFService = Depends(get_pdf_service)
+):
+    """문서 재인덱싱 (임베딩 재생성)"""
+    document = db.query(Document).filter(Document.id == document_id).first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    updated_document = await pdf_service.reindex_document(document, db)
+    return {
+        "message": "Document reindexed successfully",
+        "document": DocumentResponse.model_validate(updated_document)
+    }
+
+
+@router.post("/reindex-all")
+async def reindex_all_documents(
+    db: Session = Depends(get_db),
+    pdf_service: PDFService = Depends(get_pdf_service)
+):
+    """모든 문서 재인덱싱"""
+    documents = db.query(Document).all()
+    reindexed = []
+
+    for document in documents:
+        try:
+            updated = await pdf_service.reindex_document(document, db)
+            reindexed.append(document.id)
+        except Exception as e:
+            # 개별 문서 실패 시 계속 진행
+            pass
+
+    return {
+        "message": f"Reindexed {len(reindexed)} documents",
+        "reindexed_ids": reindexed
+    }

@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FileText, MessageCircle, RefreshCw } from 'lucide-react';
+import { FileText, MessageCircle, RefreshCw, Settings, Download } from 'lucide-react';
 import DocumentUpload from '@/components/DocumentUpload';
 import DocumentList from '@/components/DocumentList';
 import ChatInterface from '@/components/ChatInterface';
+import ProviderSettings from '@/components/settings/ProviderSettings';
+import ModelDownloadPanel from '@/components/settings/ModelDownloadPanel';
 import { documentApi } from '@/lib/api';
 import type { Document } from '@/types';
 
@@ -12,6 +14,8 @@ export default function Home() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showDownloadPanel, setShowDownloadPanel] = useState(false);
 
   const fetchDocuments = async () => {
     setLoading(true);
@@ -34,13 +38,35 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-2">
-            <FileText className="w-8 h-8 text-blue-500" />
-            <h1 className="text-2xl font-bold text-gray-900">RAG Document Search</h1>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <FileText className="w-8 h-8 text-blue-500" />
+                <h1 className="text-2xl font-bold text-gray-900">RAG Document Search</h1>
+              </div>
+              <p className="text-sm text-gray-500 mt-1">
+                PDF 문서를 업로드하고 AI로 검색하세요
+              </p>
+            </div>
+
+            {/* 헤더 버튼들 */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowDownloadPanel(!showDownloadPanel)}
+                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                title="모델 다운로드"
+              >
+                <Download className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setShowSettings(true)}
+                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Provider 설정"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-          <p className="text-sm text-gray-500 mt-1">
-            PDF 문서를 업로드하고 AI로 검색하세요
-          </p>
         </div>
       </header>
 
@@ -122,6 +148,20 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* Provider 설정 모달 */}
+      {showSettings && (
+        <ProviderSettings
+          onClose={() => setShowSettings(false)}
+          onProviderChange={fetchDocuments}
+        />
+      )}
+
+      {/* 모델 다운로드 패널 */}
+      <ModelDownloadPanel
+        isOpen={showDownloadPanel}
+        onClose={() => setShowDownloadPanel(false)}
+      />
     </div>
   );
 }
